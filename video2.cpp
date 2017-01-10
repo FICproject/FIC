@@ -329,7 +329,7 @@ int main(int argc, char* argv[])
 			if (n < 0) 
         			printf("ERROR writing to socket");
 	
-	if(abs(ang1 - ang2) <5){
+	if(abs(ang1 - ang2) <5.0){
 		n = write(sockfd,"f\n",1);
 		sleep(0.1);
 	        n = write(sockfd,"s\n",1);
