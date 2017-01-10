@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
 	//matrix storage for binary threshold image
 	Mat threshold;
 	//x and y values for the location of the object
-	int x = 0, y = 0;
+	int x = 0, y = 0,xC=0,yC=0,xc=0,yc=0;
 	//create slider bars for HSV filtering
 	//createTrackbars();
 	//video capture object to acquire webcam feed
@@ -267,7 +267,8 @@ int main(int argc, char* argv[])
 		//filter HSV image between values and store filtered image to
 		//threshold matrix
 		//aici facem modificari : inRange(HSV, Scalar(H_MIN, S_MIN, V_MIN), Scalar(H_MAX, S_MAX, V_MAX), threshold);
-   inRange(HSV, Scalar(H_MINB, S_MINB, V_MINB), Scalar(H_MAXB, S_MAXB, V_MAXB), threshold);
+	////////////ROBOT 1
+   inRange(HSV, Scalar(H_MINB, S_MINB, V_MINB), Scalar(H_MAXB, S_MAXB, V_MAXB), threshold);// detectie cerc mare
 		//perform morphological operations on thresholded image to eliminate noise
 		//and emphasize the filtered object(s)
 		if (useMorphOps)
@@ -276,17 +277,53 @@ int main(int argc, char* argv[])
 		//this function will return the x and y coordinates of the
 		//filtered object
 		if (trackObjects)
+		{
 			trackFilteredObject(x, y, threshold, cameraFeed);
+			xC = x;
+			yC = y;
+		}
 
-    inRange(HSV, Scalar(H_MING, S_MING, V_MING), Scalar(H_MAXG, S_MAXG, V_MAXG), threshold);
+    inRange(HSV, Scalar(H_MING, S_MING, V_MING), Scalar(H_MAXG, S_MAXG, V_MAXG), threshold);//detectie cerc interior
     if (useMorphOps)
 			morphOps(threshold);
 		//pass in thresholded frame to our object tracking function
 		//this function will return the x and y coordinates of the
 		//filtered object
 		if (trackObjects)
+		{
 			trackFilteredObject(x, y, threshold, cameraFeed);
+			xc = x;
+			yc = y;
+		}
     
+	//////////ROBOT INAMIC     
+	inRange(HSV, Scalar(H_MINB, S_MINB, V_MINB), Scalar(H_MAXB, S_MAXB, V_MAXB), threshold);// detectie cerc mare
+		//perform morphological operations on thresholded image to eliminate noise
+		//and emphasize the filtered object(s)
+		if (useMorphOps)
+			morphOps(threshold);
+		//pass in thresholded frame to our object tracking function
+		//this function will return the x and y coordinates of the
+		//filtered object
+		if (trackObjects)
+		{
+			trackFilteredObject(x, y, threshold, cameraFeed);
+			xC = x;
+			yC = y;
+		}
+
+    inRange(HSV, Scalar(H_MING, S_MING, V_MING), Scalar(H_MAXG, S_MAXG, V_MAXG), threshold);//detectie cerc interior
+    if (useMorphOps)
+			morphOps(threshold);
+		//pass in thresholded frame to our object tracking function
+		//this function will return the x and y coordinates of the
+		//filtered object
+		if (trackObjects)
+		{
+			trackFilteredObject(x, y, threshold, cameraFeed);
+			xc = x;
+			yc = y;
+		}
 		//show frames
 		imshow(windowName2, threshold);
 		imshow(windowName, cameraFeed);
