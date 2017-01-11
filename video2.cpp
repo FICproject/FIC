@@ -5,6 +5,12 @@
 #include "opencv2/highgui/highgui.hpp"
 //#include <opencv2\cv.h>
 #include "opencv2/opencv.hpp"
+#include <stdio.h>
+#include <sys/types.h> 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <unistd.h>
 
 #define PI 3.1415
 
@@ -203,14 +209,17 @@ void trackFilteredObject(int &x, int &y, Mat threshold, Mat &cameraFeed) {
 }
 int main(int argc, char* argv[])
 {
+	int sockfd, portno, n;
+    	struct sockaddr_in serv_addr;
+    	struct hostent *server;
+	
+	int x = 0, y = 0,xC=0,yC=0,xc=0,yc=0,xC2=0,yC2=0,xc2=0,yc2=0;
+	float ang1,ang2,rotateTime = 0.1;
 
 	//some boolean variables for different functionality within this
 	//program
 	bool trackObjects = true;
 	bool useMorphOps = true;
-	int sockfd, portno, n;
-    	struct sockaddr_in serv_addr;
-    	struct hostent *server;
 	Point p;
 	//Matrix to store each frame of the webcam feed
 	Mat cameraFeed;
@@ -219,8 +228,6 @@ int main(int argc, char* argv[])
 	//matrix storage for binary threshold image
 	Mat threshold;
 	//x and y values for the location of the object
-	int x = 0, y = 0,xC=0,yC=0,xc=0,yc=0;
-	float ang,ang2;
 	//create slider bars for HSV filtering
 	//createTrackbars();
 	//video capture object to acquire webcam feed
@@ -319,24 +326,37 @@ int main(int argc, char* argv[])
 			xc2 = x;
 			yc2 = y;
 		}
-	ang2 = (atan2(xC2 - xC , yC2 - yC))*180/PI;
+	     
+	     ang2 = (atan2(xC2 - xC , yC2 - yC))*180/PI;
 	
-		//rotate right 	
-		    	n = write(sockfd,"r\n",1);
-    			sleep(0.1);
-       		 	n = write(sockfd,"s\n",1);
-			sleep(0.1);
-			if (n < 0) 
-        			printf("ERROR writing to socket");
+	     rotateTime = abs(ang2 - ang1) / 90;
+
 	
-	if(abs(ang1 - ang2) <5.0){
+	if(abs(ang2 - ang1) <5.0){
+		sleep(7); // camera lag
 		n = write(sockfd,"f\n",1);
-		sleep(0.1);
+		sleep(0.4); // time moving f
 	        n = write(sockfd,"s\n",1);
-	        sleep(0.1);
+	        
 		if (n < 0) 
-        		printf("ERROR writing to socket");
-	//}
+        		printf("\nERROR writing to socket");
+	}else if(ang2 > ang1){
+		//rotate right 	
+		sleep(7); // camera lag
+		n = write(sockfd,"r\n",1);
+    		sleep(roateTime);
+       		n = write(sockfd,"s\n",1);
+		
+		if (n < 0) 
+        		printf("\nERROR writing to socket");
+			
+	}else {
+		//rotate left
+		sleep(7);
+		n = write(sockfd,"l\n",1);
+    		sleep(rotateTime);
+       		n = write(sockfd,"s\n",1);
+	}
 		//show frames
 		imshow(windowName2, threshold);
 		imshow(windowName, cameraFeed);
