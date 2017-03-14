@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
     	struct sockaddr_in serv_addr;
     	struct hostent *server;
 	
-	int x = 0, y = 0,xC=0,yC=0,xc=0,yc=0,xC2=0,yC2=0,xc2=0,yc2=0;
+	float x = 0, y = 0,xC=0,yC=0,xc=0,yc=0,xC2=0,yC2=0,xc2=0,yc2=0;
 	float ang1,ang2,rotateTime = 0.1;
 
 	//some boolean variables for different functionality within this
@@ -280,9 +280,7 @@ int main(int argc, char* argv[])
 		//filtered object
 		if (trackObjects)
 		{
-			trackFilteredObject(x, y, threshold, cameraFeed);
-			xC = x;
-			yC = y;
+			trackFilteredObject(xC, yC, threshold, cameraFeed);
 		}
 
     inRange(HSV, Scalar(H_MING, S_MING, V_MING), Scalar(H_MAXG, S_MAXG, V_MAXG), threshold);//detectie cerc interior
@@ -293,11 +291,13 @@ int main(int argc, char* argv[])
 		//filtered object
 		if (trackObjects)
 		{
-			trackFilteredObject(x, y, threshold, cameraFeed);
-			xc = x;
-			yc = y;
+			trackFilteredObject(xc, yc, threshold, cameraFeed);
 		}
-    ang1 = (atan2(xc - xC , yc - yC))*180/PI;
+   // ang1 = (atan2(xc - xC , yc - yC))*180/PI;
+	     float det,prod;
+	     prod = xc * xC + yc * yC;
+	     det = xc * yC - xC * yc;
+	     ang1 = (atan2(det,prod))*180/PI;
 	//////////ROBOT INAMIC     
 	inRange(HSV, Scalar(H_MINB, S_MINB, V_MINB), Scalar(H_MAXB, S_MAXB, V_MAXB), threshold);// detectie cerc mare
 		//perform morphological operations on thresholded image to eliminate noise
@@ -309,9 +309,7 @@ int main(int argc, char* argv[])
 		//filtered object
 		if (trackObjects)
 		{
-			trackFilteredObject(x, y, threshold, cameraFeed);
-			xC2 = x;
-			yC2 = y;
+			trackFilteredObject(xC2, yC2, threshold, cameraFeed);
 		}
 
     inRange(HSV, Scalar(H_MING, S_MING, V_MING), Scalar(H_MAXG, S_MAXG, V_MAXG), threshold);//detectie cerc interior
@@ -322,28 +320,30 @@ int main(int argc, char* argv[])
 		//filtered object
 		if (trackObjects)
 		{
-			trackFilteredObject(x, y, threshold, cameraFeed);
-			xc2 = x;
-			yc2 = y;
+			trackFilteredObject(xc2, yc2, threshold, cameraFeed);
 		}
 	     
-	     ang2 = (atan2(xC2 - xC , yC2 - yC))*180/PI;
-	
-	     rotateTime = abs(ang2 - ang1) / 90;
+	     //ang2 = (atan2(xC2 - xC , yC2 - yC))*180/PI;
+		prod = xc2 * xC + yc2 * yC;
+	     	det = xC * yc2 - Yc * xc2;
+	     	ang2 = (atan2(det,prod))*180/PI;
+	     ////////////////////////////////////////////////////////////////////////////////////////////////////
+	     	rotateTime = abs(ang2 - ang1) / 90;
 
 	
-	if(abs(ang2 - ang1) <5.0){
-		sleep(7); // camera lag
+	if(abs(ang2 - ang1) < 5.0)// toleranta
+	{	
+		//sleep(7); // camera lag
 		n = write(sockfd,"f\n",1);
-		sleep(0.4); // time moving f
+		sleep(0.5); // time moving f
 	        n = write(sockfd,"s\n",1);
 	        
 		if (n < 0) 
         		printf("\nERROR writing to socket");
 	}else if(ang2 > ang1){
-		//rotate right 	
-		sleep(7); // camera lag
-		n = write(sockfd,"r\n",1);
+		//rotate left 	
+		//sleep(7); // camera lag
+		n = write(sockfd,"l\n",1);
     		sleep(roateTime);
        		n = write(sockfd,"s\n",1);
 		
@@ -351,9 +351,9 @@ int main(int argc, char* argv[])
         		printf("\nERROR writing to socket");
 			
 	}else {
-		//rotate left
-		sleep(7);
-		n = write(sockfd,"l\n",1);
+		//rotate right
+		//sleep(7); //camera lag
+		n = write(sockfd,"r\n",1);
     		sleep(rotateTime);
        		n = write(sockfd,"s\n",1);
 	}
