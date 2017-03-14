@@ -294,10 +294,7 @@ int main(int argc, char* argv[])
 			trackFilteredObject(xc, yc, threshold, cameraFeed);
 		}
    // ang1 = (atan2(xc - xC , yc - yC))*180/PI;
-	     float det,prod;
-	     prod = xc * xC + yc * yC;
-	     det = xc * yC - xC * yc;
-	     ang1 = (atan2(det,prod))*180/PI;
+	     ang1 = (atan2(yc, xc) - atan2(yC,  xC))*180/PI;
 	//////////ROBOT INAMIC     
 	inRange(HSV, Scalar(H_MINB, S_MINB, V_MINB), Scalar(H_MAXB, S_MAXB, V_MAXB), threshold);// detectie cerc mare
 		//perform morphological operations on thresholded image to eliminate noise
@@ -324,9 +321,8 @@ int main(int argc, char* argv[])
 		}
 	     
 	     //ang2 = (atan2(xC2 - xC , yC2 - yC))*180/PI;
-		prod = xc2 * xC + yc2 * yC;
-	     	det = xC * yc2 - Yc * xc2;
-	     	ang2 = (atan2(det,prod))*180/PI;
+		
+	     	ang2 = (atan2(yc2, xc2) - atan2(yC,  xC))*180/PI;
 	     ////////////////////////////////////////////////////////////////////////////////////////////////////
 	     	rotateTime = abs(ang2 - ang1) / 90;
 
